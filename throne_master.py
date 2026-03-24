@@ -60,7 +60,7 @@ def menu(message):
         markup.add(types.InlineKeyboardButton("🔍 Cek & Kontrol Per PC", callback_data="status_all"))
         markup.add(types.InlineKeyboardButton("🚀 Start Semua", callback_data="all_start"),
                    types.InlineKeyboardButton("🛑 Stop Semua", callback_data="all_stop"))
-        bot.reply_to(message, "👑 **Master Throne Cloud v2.6**\nStatus: Online & Sync Polling Active", reply_markup=markup, parse_mode="Markdown")
+        bot.reply_to(message, "👑 **Master Throne Cloud v2.7**\nStatus: Online & Sync Polling Fixed", reply_markup=markup, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
@@ -115,20 +115,20 @@ if __name__ == "__main__":
     
     while True:
         try:
-            # 1. Pastikan instansi lama terputus dari Telegram
+            # 1. Pastikan instansi lama terputus
             print("🧹 Membersihkan session (remove_webhook)...")
             bot.remove_webhook()
             time.sleep(2)
             
-            # 2. Jalankan polling secara sinkron (threaded=False)
-            # Ini sangat penting agar error 409 naik ke loop 'while True' kita
-            print("🚀 Memulai polling sinkron (v2.6)...")
-            bot.polling(none_stop=True, timeout=60, threaded=False)
+            # 2. Gunakan infinity_polling dengan restart_on_change=False 
+            # untuk menghindari penggunaan 'threaded' argumen yang bermasalah
+            print("🚀 Memulai polling (v2.7)...")
+            bot.infinity_polling(timeout=60, long_polling_timeout=5)
             
         except Exception as e:
             error_msg = str(e)
             if "Conflict" in error_msg or "409" in error_msg:
-                print("⚠️ Conflict 409 terdeteksi. Menunggu 15 detik agar Railway mematikan instansi lama...")
+                print("⚠️ Conflict 409 terdeteksi. Menunggu 15 detik...")
                 time.sleep(15)
             else:
                 print(f"❌ Polling Error: {e}")
