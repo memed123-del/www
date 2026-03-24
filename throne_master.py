@@ -60,7 +60,7 @@ def menu(message):
         markup.add(types.InlineKeyboardButton("🔍 Cek & Kontrol Per PC", callback_data="status_all"))
         markup.add(types.InlineKeyboardButton("🚀 Start Semua", callback_data="all_start"),
                    types.InlineKeyboardButton("🛑 Stop Semua", callback_data="all_stop"))
-        bot.reply_to(message, "👑 **Master Throne Cloud v2.3**\nStatus: Online & Polling Fixed", reply_markup=markup, parse_mode="Markdown")
+        bot.reply_to(message, "👑 **Master Throne Cloud v2.4**\nStatus: Online & Deep Polling Fix", reply_markup=markup, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
@@ -95,7 +95,7 @@ def handle_query(call):
                 
                 bot.send_message(call.message.chat.id, 
                                  f"{status_icon} **Device: {node_id}**\nStatus: `{mining_status}`", 
-                                 reply_markup=row, parse_mode="Markdown")
+                                 markup=row, parse_mode="Markdown")
         except Exception as e:
             bot.send_message(call.message.chat.id, f"⚠️ Error: {e}")
 
@@ -113,22 +113,22 @@ def handle_query(call):
 if __name__ == "__main__":
     print("--- Throne Master Online ---")
     
-    # Menghapus webhook lama untuk memastikan polling bersih
-    try:
-        bot.remove_webhook()
-        time.sleep(1)
-    except:
-        pass
-    
-    # Loop Polling dengan penanganan error Conflict 409
     while True:
         try:
-            print("🚀 Memulai polling...")
-            bot.polling(none_stop=True, interval=0, timeout=20)
+            # Bersihkan session lama setiap kali loop mulai
+            print("🧹 Membersihkan session Telegram lama...")
+            bot.remove_webhook()
+            time.sleep(2)
+            
+            print("🚀 Memulai polling (Sync Mode)...")
+            # Menggunakan threaded=False agar error 409 bisa ditangkap oleh blok 'except' ini
+            bot.polling(none_stop=False, interval=0, timeout=20, threaded=False)
+            
         except Exception as e:
-            if "Conflict" in str(e):
-                print("⚠️ Conflict detected (Instansi bot lain masih aktif). Mencoba lagi dalam 5 detik...")
-                time.sleep(5)
+            error_msg = str(e)
+            if "Conflict" in error_msg or "409" in error_msg:
+                print("⚠️ Conflict 409: Instansi bot lain masih aktif di server. Menunggu 10 detik...")
+                time.sleep(10)
             else:
                 print(f"❌ Polling Error: {e}")
-                time.sleep(10)
+                time.sleep(5)
