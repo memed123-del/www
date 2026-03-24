@@ -8,7 +8,7 @@ import json
 import os
 
 # --- KONFIGURASI TELEGRAM ---
-TOKEN = '8110550128:AAFnR9WHzplvyJquXAf rcliThCOkzxSWvnA'
+TOKEN = '8710550128:AAFmR0WHZplvyJquXAfrcIiTHcOkzxSNvnA'
 MY_ID = 5828061077
 bot = telebot.TeleBot(TOKEN)
 
