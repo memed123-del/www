@@ -60,7 +60,7 @@ def menu(message):
         markup.add(types.InlineKeyboardButton("🔍 Cek & Kontrol Per PC", callback_data="status_all"))
         markup.add(types.InlineKeyboardButton("🚀 Start Semua", callback_data="all_start"),
                    types.InlineKeyboardButton("🛑 Stop Semua", callback_data="all_stop"))
-        bot.reply_to(message, "👑 **Master Throne Cloud v2.5**\nStatus: Online & Polling Argument Fixed", reply_markup=markup, parse_mode="Markdown")
+        bot.reply_to(message, "👑 **Master Throne Cloud v2.6**\nStatus: Online & Sync Polling Active", reply_markup=markup, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
@@ -115,20 +115,21 @@ if __name__ == "__main__":
     
     while True:
         try:
-            # Bersihkan session lama setiap kali loop mulai
-            print("🧹 Membersihkan session Telegram lama...")
+            # 1. Pastikan instansi lama terputus dari Telegram
+            print("🧹 Membersihkan session (remove_webhook)...")
             bot.remove_webhook()
             time.sleep(2)
             
-            print("🚀 Memulai polling (Infinity Mode)...")
-            # Menggunakan infinity_polling karena lebih stabil dan menangani retries secara internal
-            bot.infinity_polling(timeout=20, long_polling_timeout=5)
+            # 2. Jalankan polling secara sinkron (threaded=False)
+            # Ini sangat penting agar error 409 naik ke loop 'while True' kita
+            print("🚀 Memulai polling sinkron (v2.6)...")
+            bot.polling(none_stop=True, timeout=60, threaded=False)
             
         except Exception as e:
             error_msg = str(e)
             if "Conflict" in error_msg or "409" in error_msg:
-                print("⚠️ Conflict 409: Menunggu instansi lama mati. Re-try dalam 10 detik...")
-                time.sleep(10)
+                print("⚠️ Conflict 409 terdeteksi. Menunggu 15 detik agar Railway mematikan instansi lama...")
+                time.sleep(15)
             else:
                 print(f"❌ Polling Error: {e}")
                 time.sleep(5)
