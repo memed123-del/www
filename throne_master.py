@@ -79,7 +79,12 @@ def handle_query(call):
             for doc in docs:
                 data = doc.to_dict()
                 node_id = doc.id
-                last_seen = float(data.get('last_seen', 0))
+                
+                try:
+                    last_seen_raw = data.get('last_seen', 0)
+                    last_seen = float(last_seen_raw)
+                except (ValueError, TypeError):
+                    last_seen = 0
                 
                 status_icon = "✅" if (time.time() - last_seen) < 300 else "❌"
                 mining_status = data.get('mining_status', 'Unknown')
@@ -109,17 +114,21 @@ if __name__ == "__main__":
     print("--- Throne Master Online ---")
     
     # Menghapus webhook lama untuk memastikan polling bersih
-    bot.remove_webhook()
-    time.sleep(1)
+    try:
+        bot.remove_webhook()
+        time.sleep(1)
+    except:
+        pass
     
     # Loop Polling dengan penanganan error Conflict 409
     while True:
         try:
+            print("🚀 Memulai polling...")
             bot.polling(none_stop=True, interval=0, timeout=20)
         except Exception as e:
             if "Conflict" in str(e):
-                print("⚠️ Conflict detected, restarting in 5 seconds...")
+                print("⚠️ Conflict detected (Instansi bot lain masih aktif). Mencoba lagi dalam 5 detik...")
                 time.sleep(5)
             else:
                 print(f"❌ Polling Error: {e}")
-                time.sleep(5)
+                time.sleep(10)
